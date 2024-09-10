@@ -1,17 +1,20 @@
-Eye e;
+int eyeNum = 16
+Eye[] eyes = new Eye[eyeNum];
 
 void setup() {
   size(400, 400);
   noStroke();
-  e = new Eye(200, 200, 50, 45);
+  for (int i =0; i < eyeNum; i=i+1) {
+    eyes[i] = new Eye(120*(i%4), 120*(i/4), int(random(50, 100)), random(0, 360));
+  }
 }
 
 void draw() {
   background(0);
-  
-  e.update(mouseX, mouseY);
-
-  e.display();
+  for (int i =0; i < 16; i=i+1) {
+    eyes[i].update(mouseX, mouseY);
+    eyes[i].display();
+  }
 }
 
 class Eye {
@@ -40,7 +43,7 @@ class Eye {
     pupilAngle = atan2(mY - positionY, mX - positionX);
     
     //Calculate if mouse is on the eye
-    mouseOnEye = size >= dist(mX, mY, positionX, positionY);
+    mouseOnEye = size / 2 >= dist(mX, mY, positionX, positionY);
     
     //Setup blink timer
     if (blinkTime <= millis() - blinkTimer) {
