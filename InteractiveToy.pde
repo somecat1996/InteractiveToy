@@ -1,7 +1,8 @@
 // Number of eyes on each colum or row
 int eyeNum = 5;
 // Array to store all eye class
-Eye[] eyes = new Eye[eyeNum*eyeNum];
+ArrayList<Eye> eyes = new ArrayList<Eye>();
+//Eye[] eyes = new Eye[eyeNum*eyeNum];
 // Colors
 int pupilColor = #D20103;
 int backgroundColor = 0;
@@ -14,8 +15,10 @@ void setup() {
   noStroke();
   
   // Initiate eye position
+  
   for (int i =0; i < eyeNum*eyeNum; i=i+1) {
-    eyes[i] = new Eye((400/(eyeNum-1))*(i%eyeNum), (400/(eyeNum-1))*(i/eyeNum), int(random(50, 100)), random(0, 360));
+    Eye eye = new Eye((400/(eyeNum-1))*(i%eyeNum), (400/(eyeNum-1))*(i/eyeNum), int(random(50, 100)), random(0, 360));
+    eyes.add(eye);
   }
 }
 
@@ -25,8 +28,8 @@ void draw() {
   
   // Draw every eye
   for (int i =0; i < eyeNum*eyeNum; i=i+1) {
-    eyes[i].update(mouseX, mouseY);
-    eyes[i].display();
+    eyes.get(i).update(mouseX, mouseY);
+    eyes.get(i).display();
   }
 }
 
@@ -115,6 +118,8 @@ class Eye {
         rotate(pupilAngle - angle);
         fill(pupilColor);
         ellipse(size/4, 0, size/2, size/2);
+        fill(backgroundColor);
+        ellipse(size/4, 0, size/4, size/4);
       }
     } else {
       fill(pupilColor);
