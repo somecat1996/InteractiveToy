@@ -57,7 +57,7 @@ void draw() {
 
 class Eye {
   PVector position;
-  int size;
+  float size;
   float angle;
   float pupilAngle = 0.0;
   boolean mouseOnEye = false;
@@ -75,22 +75,20 @@ class Eye {
   float smoothness = random(0.15, 0.01);
   PVector pupilVector = new PVector(0, 0);
   PVector targetVector = new PVector(0, 0);
-  float distRatio;
   
-  Eye(int x, int y, int s, float a) {
+  Eye(int x, int y, float s, float a) {
     this.position = new PVector(x, y);
     this.size = s;
     this.angle = a;
-    this.distRatio = 0;
   }
   
   // Calculate variables based on mouse position
   void update(int mX, int mY) {
+    // Calculate pupil position, make pupil looks at mouse
     targetVector = new PVector(mX - position.x, mY - position.y);
-    pupilVector.add(targetVector.sub(pupilVector).mult(smoothness));
-    distRatio = map(pupilVector.dist(position), 0, 240, 0, 1);
-    // Calculate pupil angle, make pupil looks at mouse
-    pupilAngle = atan2(mY - position.y, mX - position.x);
+    targetVector = targetVector.mult(size/1200.0);
+    pupilVector = pupilVector.add(targetVector.sub(pupilVector).mult(smoothness));
+    pupilAngle = atan2(pupilVector.y, pupilVector.x);
     
     // Calculate if mouse is on the eye
     mouseOnEye = size / 2 >= dist(mX, mY, position.x, position.y);
@@ -147,19 +145,19 @@ class Eye {
         
         // Draw pupil
         fill(pupilColor);
-        ellipse(size/4*cos(pupilAngle)*distRatio, size/4*sin(pupilAngle)*distRatio, size/2, size/2);
+        ellipse(pupilVector.x, pupilVector.y, size/2, size/2);
         fill(backgroundColor);
-        ellipse(size/4*cos(pupilAngle)*distRatio, size/4*sin(pupilAngle)*distRatio, size/4, size/4);
+        ellipse(pupilVector.x, pupilVector.y, size/4, size/4);
+        
+        //Draw highlight
+        fill(light);
+        ellipse(pupilVector.x-size/8, pupilVector.y-size/8, size/8, size/8);
         
         // Draw eyelid
         rotate(angle);
         fill(skinColor);
         float litAngle = asin((size/2*sin(pupilAngle)-size/2+size/10)/size);
         arc(0, 0, size, size, PI-litAngle, 2*PI+litAngle, OPEN);
-        
-        //Draw highlight
-        fill(light);
-        ellipse(size/4*cos(pupilAngle)+size/8, size/4*sin(pupilAngle)-size/8, size/8, size/8);
       }
     } else {
       fill(skinColor);
