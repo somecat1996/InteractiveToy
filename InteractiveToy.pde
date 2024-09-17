@@ -143,7 +143,7 @@ class Eye {
         // Draw eyelid
         rotate(-pupilAngle+angle);
         fill(skinColor);
-        arc(0, 0, size, size, PI-pupilAngle+PI/18, 2*PI+pupilAngle-PI/18, OPEN);
+        arc(0, 0, size, size, PI-pupilAngle, 2*PI+pupilAngle, OPEN);
         
       }
     } else {
