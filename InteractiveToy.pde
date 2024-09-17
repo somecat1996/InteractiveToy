@@ -2,7 +2,6 @@
 int eyeNum = 5;
 // Array to store all eye class
 ArrayList<Eye> eyes = new ArrayList<Eye>();
-//Eye[] eyes = new Eye[eyeNum*eyeNum];
 // Colors
 int pupilColor = #D20103;
 int fleshColor = #FA5C5C;
@@ -11,6 +10,14 @@ int backgroundColor = #2F2F2F;
 int shadowColor = #242424;
 int pinkEyeColor = #FFA6A7;
 int normalEyeColor = 255;
+color light = color(255, 180);
+
+
+int maxBlinkTime = 4000;
+int minBlinkTime = 1000;
+int eyeCloseTime = 200;
+int maxPinkEyeBlinkTime = 500;
+int minPinkEyeBlinkTime = 50;
 
 void setup() {
   // Initial settings
@@ -49,16 +56,13 @@ void draw() {
 }
 
 class Eye {
-  int positionX, positionY;
+  PVector position;
   int size;
   float angle;
   float pupilAngle = 0.0;
   boolean mouseOnEye = false;
   
   int blinkTime = 0;
-  int maxBlinkTime = 4000;
-  int minBlinkTime = 1000;
-  int eyeCloseTime = 200;
   int blinkTimer = 0;
   boolean blink = false;
   
@@ -67,23 +71,29 @@ class Eye {
   // Use flag to make pinkeye cured after blink
   boolean pinkEye = false;
   boolean pinkEyeFlag = false;
-  int maxPinkEyeBlinkTime = 500;
-  int minPinkEyeBlinkTime = 50;
+  
+  float smoothness = random(0.15, 0.01);
+  PVector pupilVector = new PVector(0, 0);
+  PVector targetVector = new PVector(0, 0);
+  float distRatio;
   
   Eye(int x, int y, int s, float a) {
-    positionX = x;
-    positionY = y;
-    size = s;
-    angle = a;
+    this.position = new PVector(x, y);
+    this.size = s;
+    this.angle = a;
+    this.distRatio = 0;
   }
   
   // Calculate variables based on mouse position
   void update(int mX, int mY) {
+    targetVector = new PVector(mX - position.x, mY - position.y);
+    pupilVector.add(targetVector.sub(pupilVector).mult(smoothness));
+    distRatio = map(pupilVector.dist(position), 0, 240, 0, 1);
     // Calculate pupil angle, make pupil looks at mouse
-    pupilAngle = atan2(mY - positionY, mX - positionX);
+    pupilAngle = atan2(mY - position.y, mX - position.x);
     
     // Calculate if mouse is on the eye
-    mouseOnEye = size / 2 >= dist(mX, mY, positionX, positionY);
+    mouseOnEye = size / 2 >= dist(mX, mY, position.x, position.y);
     if (mousePressed && mouseOnEye) {
       pinkEye = true;
       pinkEyeFlag = true;
@@ -115,14 +125,14 @@ class Eye {
   // Draw eye
   void display() {
     pushMatrix();
-    translate(positionX, positionY);
+    translate(position.x, position.y);
     // Draw shadow
-    rotate(-45-angle);
+    rotate(-45);
     fill(shadowColor);
     arc(0, 0, size, size*1.3, 0, PI, OPEN);
     
     // Draw eyeball
-    rotate(angle+45);
+    rotate(45);
     if (!mouseOnEye) {
       if (blink){
         fill(skinColor);
@@ -134,17 +144,22 @@ class Eye {
           fill(normalEyeColor);
         }
         ellipse(0, 0, size, size);
-        rotate(pupilAngle - angle);
+        
+        // Draw pupil
         fill(pupilColor);
-        ellipse(size/4, 0, size/2, size/2);
+        ellipse(size/4*cos(pupilAngle)*distRatio, size/4*sin(pupilAngle)*distRatio, size/2, size/2);
         fill(backgroundColor);
-        ellipse(size/4, 0, size/4, size/4);
+        ellipse(size/4*cos(pupilAngle)*distRatio, size/4*sin(pupilAngle)*distRatio, size/4, size/4);
         
         // Draw eyelid
-        rotate(-pupilAngle+angle);
+        rotate(angle);
         fill(skinColor);
-        arc(0, 0, size, size, PI-pupilAngle, 2*PI+pupilAngle, OPEN);
+        float litAngle = asin((size/2*sin(pupilAngle)-size/2+size/10)/size);
+        arc(0, 0, size, size, PI-litAngle, 2*PI+litAngle, OPEN);
         
+        //Draw highlight
+        fill(light);
+        ellipse(size/4*cos(pupilAngle)+size/8, size/4*sin(pupilAngle)-size/8, size/8, size/8);
       }
     } else {
       fill(skinColor);
@@ -152,36 +167,4 @@ class Eye {
     }
     popMatrix();
   }
-  /*
-  void display() {
-    pushMatrix();
-    translate(positionX, positionY);
-    rotate(angle);
-    if (!mouseOnEye) {
-      if (blink){
-        fill(pupilColor);
-        ellipse(0, 0, size, 2);
-      } else {
-        fill(fleshColor);
-        quad(0, 0, size / 2 * 0.71, size / 2 * 0.71, size / 2 * 1.41, 0, size / 2 * 0.71, -size / 2 * 0.71);
-        quad(0, 0, -size / 2 * 0.71, size / 2 * 0.71, -size / 2 * 1.41, 0, -size / 2 * 0.71, -size / 2 * 0.71);
-        if (pinkEye) {
-          fill(pinkEyeColor);
-        } else {
-          fill(normalEyeColor);
-        }
-        ellipse(0, 0, size, size);
-        rotate(pupilAngle - angle);
-        fill(pupilColor);
-        ellipse(size/4, 0, size/2, size/2);
-        fill(backgroundColor);
-        ellipse(size/4, 0, size/4, size/4);
-      }
-    } else {
-      fill(pupilColor);
-      ellipse(0, 0, size, 2);
-    }
-    popMatrix();
-  }
-  */
 }
