@@ -5,10 +5,24 @@ ArrayList<Eye> eyes = new ArrayList<Eye>();
 //Eye[] eyes = new Eye[eyeNum*eyeNum];
 // Colors
 int pupilColor = #D20103;
-int backgroundColor = 0;
+int fleshColor = #FA5C5C;
+int skinColor = #5A5A5A;
+int backgroundColor = #2F2F2F;
+int shadowColor = #242424;
 int pinkEyeColor = #FFA6A7;
 int normalEyeColor = 255;
 
+void setup() {
+  // Initial settings
+  size(400, 400);
+  noStroke();
+  
+  Eye eye = new Eye(200, 200, 100, 0);
+  eyes.add(eye);
+}
+
+
+/*
 void setup() {
   // Initial settings
   size(400, 400);
@@ -22,12 +36,13 @@ void setup() {
   }
 }
 
+*/
 void draw() {
   // Refresh board
   background(backgroundColor);
   
   // Draw every eye
-  for (int i =0; i < eyeNum*eyeNum; i=i+1) {
+  for (int i =0; i < eyes.size(); i=i+1) {
     eyes.get(i).update(mouseX, mouseY);
     eyes.get(i).display();
   }
@@ -101,11 +116,17 @@ class Eye {
   void display() {
     pushMatrix();
     translate(positionX, positionY);
-    rotate(angle);
+    // Draw shadow
+    rotate(-45-angle);
+    fill(shadowColor);
+    arc(0, 0, size, size*1.3, 0, PI, OPEN);
+    
+    // Draw eyeball
+    rotate(angle+45);
     if (!mouseOnEye) {
       if (blink){
-        fill(pupilColor);
-        ellipse(0, 0, size, 2);
+        fill(skinColor);
+        ellipse(0, 0, size, size);
       } else {
         if (pinkEye) {
           fill(pinkEyeColor);
@@ -113,8 +134,43 @@ class Eye {
           fill(normalEyeColor);
         }
         ellipse(0, 0, size, size);
+        rotate(pupilAngle - angle);
+        fill(pupilColor);
+        ellipse(size/4, 0, size/2, size/2);
+        fill(backgroundColor);
+        ellipse(size/4, 0, size/4, size/4);
+        
+        // Draw eyelid
+        rotate(-pupilAngle+angle);
+        fill(skinColor);
+        arc(0, 0, size, size, PI-pupilAngle+PI/18, 2*PI+pupilAngle-PI/18, OPEN);
+        
+      }
+    } else {
+      fill(skinColor);
+      ellipse(0, 0, size, size);
+    }
+    popMatrix();
+  }
+  /*
+  void display() {
+    pushMatrix();
+    translate(positionX, positionY);
+    rotate(angle);
+    if (!mouseOnEye) {
+      if (blink){
+        fill(pupilColor);
+        ellipse(0, 0, size, 2);
+      } else {
+        fill(fleshColor);
         quad(0, 0, size / 2 * 0.71, size / 2 * 0.71, size / 2 * 1.41, 0, size / 2 * 0.71, -size / 2 * 0.71);
         quad(0, 0, -size / 2 * 0.71, size / 2 * 0.71, -size / 2 * 1.41, 0, -size / 2 * 0.71, -size / 2 * 0.71);
+        if (pinkEye) {
+          fill(pinkEyeColor);
+        } else {
+          fill(normalEyeColor);
+        }
+        ellipse(0, 0, size, size);
         rotate(pupilAngle - angle);
         fill(pupilColor);
         ellipse(size/4, 0, size/2, size/2);
@@ -127,4 +183,5 @@ class Eye {
     }
     popMatrix();
   }
+  */
 }
