@@ -24,17 +24,6 @@ void setup() {
   size(400, 400);
   noStroke();
   
-  Eye eye = new Eye(200, 200, 100, 0);
-  eyes.add(eye);
-}
-
-
-/*
-void setup() {
-  // Initial settings
-  size(400, 400);
-  noStroke();
-  
   // Initiate eye position
   
   for (int i =0; i < eyeNum*eyeNum; i=i+1) {
@@ -43,7 +32,6 @@ void setup() {
   }
 }
 
-*/
 void draw() {
   // Refresh board
   background(backgroundColor);
@@ -75,6 +63,8 @@ class Eye {
   float smoothness = random(0.15, 0.01);
   PVector pupilVector = new PVector(0, 0);
   PVector targetVector = new PVector(0, 0);
+  PVector targetPupilVector = new PVector(0, 0);
+  float distRatio = 0;
   
   Eye(int x, int y, float s, float a) {
     this.position = new PVector(x, y);
@@ -86,9 +76,10 @@ class Eye {
   void update(int mX, int mY) {
     // Calculate pupil position, make pupil looks at mouse
     targetVector = new PVector(mX - position.x, mY - position.y);
-    targetVector = targetVector.mult(size/1200.0);
-    pupilVector = pupilVector.add(targetVector.sub(pupilVector).mult(smoothness));
+    targetPupilVector = new PVector(map(targetVector.x, -sqrt(2)*width, sqrt(2)*width, -size/2, size/2), map(targetVector.y, -sqrt(2)*height, sqrt(2)*height, -size/2, size/2));
+    pupilVector = pupilVector.add(targetPupilVector.sub(pupilVector).mult(smoothness));
     pupilAngle = atan2(pupilVector.y, pupilVector.x);
+    distRatio = map(targetVector.mag(), 0, width, 0, 1);
     
     // Calculate if mouse is on the eye
     mouseOnEye = size / 2 >= dist(mX, mY, position.x, position.y);
@@ -145,9 +136,9 @@ class Eye {
         
         // Draw pupil
         fill(pupilColor);
-        ellipse(pupilVector.x, pupilVector.y, size/2, size/2);
+        ellipse(pupilVector.x * distRatio * 1.2, pupilVector.y * distRatio * 1.2, size/2, size/2);
         fill(backgroundColor);
-        ellipse(pupilVector.x, pupilVector.y, size/4, size/4);
+        ellipse(pupilVector.x * distRatio * 1.5, pupilVector.y * distRatio * 1.5, size/4, size/4);
         
         //Draw highlight
         fill(light);
