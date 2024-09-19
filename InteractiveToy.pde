@@ -11,6 +11,7 @@ int shadowColor = #242424;
 int pinkEyeColor = #FFA6A7;
 int normalEyeColor = 255;
 color light = color(255, 180);
+float pupilOffset = 1.2;
 
 
 int maxBlinkTime = 4000;
@@ -77,6 +78,8 @@ class Eye {
     this.position = new PVector(x, y);
     this.size = s;
     this.angle = a;
+    xRange = new PVector(-position.x, width-position.x);
+    yRange = new PVector(-position.y, height-position.y);
   }
   
   // Calculate variables based on mouse position
@@ -84,15 +87,16 @@ class Eye {
     // Calculate pupil position, make pupil looks at mouse
     targetVector = new PVector(mX - position.x, mY - position.y);
     targetAngle = atan2(targetVector.y, targetVector.x);
-    xRange = new PVector(min(abs(position.y/tan(targetAngle)), position.x), min(abs((height-position.y)/tan(targetAngle)), width-position.x));
-    yRange = new PVector(min(abs(position.x*tan(targetAngle)), position.y), min(abs((width-position.x)*tan(targetAngle)), height-position.y));
-    if (targetAngle<PI/2&&targetAngle>=-PI/2) {
-      targetPupilVector = new PVector(map(targetVector.x, xRange.x, xRange.y, -size/2, size/2), map(targetVector.y, yRange.x, yRange.y, -size/2, size/2));
+    targetPupilVector = new PVector(targetVector.x, targetVector.y);
+    distRatio = map(targetVector.mag(), 0, width/2, 0, size/4);
+    if (distRatio>size/4) {
+      distRatio = size/4;
     }
+    targetPupilVector.normalize();
+    targetPupilVector.mult(distRatio);
     
     pupilVector = pupilVector.add(targetPupilVector.sub(pupilVector).mult(smoothness));
     pupilAngle = atan2(pupilVector.y, pupilVector.x);
-    distRatio = map(targetVector.mag(), 0, width, 0, 1);
     
     // Calculate if mouse is on the eye
     mouseOnEye = size / 2 >= dist(mX, mY, position.x, position.y);
@@ -149,9 +153,9 @@ class Eye {
         
         // Draw pupil
         fill(pupilColor);
-        ellipse(pupilVector.x * distRatio * 1.2, pupilVector.y * distRatio * 1.2, size/2, size/2);
+        ellipse(pupilVector.x, pupilVector.y, size/2, size/2);
         fill(backgroundColor);
-        ellipse(pupilVector.x * distRatio * 1.5, pupilVector.y * distRatio * 1.5, size/4, size/4);
+        ellipse(pupilVector.x * pupilOffset, pupilVector.y * pupilOffset, size/4, size/4);
         
         //Draw highlight
         fill(light);
@@ -160,7 +164,7 @@ class Eye {
         // Draw eyelid
         rotate(angle);
         fill(skinColor);
-        float litAngle = asin((size/2*sin(pupilAngle)-size/2+size/10)/size);
+        float litAngle = asin((size/2*sin(pupilAngle)-size/2)/size);
         arc(0, 0, size, size, PI-litAngle, 2*PI+litAngle, OPEN);
       }
     } else {
