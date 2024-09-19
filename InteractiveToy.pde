@@ -26,10 +26,12 @@ void setup() {
   
   // Initiate eye position
   
-  for (int i =0; i < eyeNum*eyeNum; i=i+1) {
-    Eye eye = new Eye((400/(eyeNum-1))*(i%eyeNum), (400/(eyeNum-1))*(i/eyeNum), int(random(50, 100)), random(0, 360));
-    eyes.add(eye);
-  }
+  //for (int i =0; i < eyeNum*eyeNum; i=i+1) {
+  //  Eye eye = new Eye((400/(eyeNum-1))*(i%eyeNum), (400/(eyeNum-1))*(i/eyeNum), int(random(50, 100)), random(0, 360));
+  //  eyes.add(eye);
+  //}
+  Eye eye = new Eye(200, 200, int(random(50, 100)), 0);
+  eyes.add(eye);
 }
 
 void draw() {
