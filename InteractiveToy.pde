@@ -47,7 +47,6 @@ class Eye {
   PVector position;
   float size;
   float angle;
-  float pupilAngle = 0.0;
   boolean mouseOnEye = false;
   
   int blinkTime = 0;
@@ -60,11 +59,17 @@ class Eye {
   boolean pinkEye = false;
   boolean pinkEyeFlag = false;
   
+  // Mpvement of pupil
   float smoothness = random(0.15, 0.01);
   PVector pupilVector = new PVector(0, 0);
   PVector targetVector = new PVector(0, 0);
   PVector targetPupilVector = new PVector(0, 0);
+  float pupilAngle = 0.0;
   float distRatio = 0;
+  PVector maxDistance = new PVector(0, 0);
+  float targetAngle = 0.0;
+  PVector xRange = new PVector(0, 0);
+  PVector yRange = new PVector(0, 0);
   
   Eye(int x, int y, float s, float a) {
     this.position = new PVector(x, y);
@@ -76,7 +81,13 @@ class Eye {
   void update(int mX, int mY) {
     // Calculate pupil position, make pupil looks at mouse
     targetVector = new PVector(mX - position.x, mY - position.y);
-    targetPupilVector = new PVector(map(targetVector.x, -sqrt(2)*width, sqrt(2)*width, -size/2, size/2), map(targetVector.y, -sqrt(2)*height, sqrt(2)*height, -size/2, size/2));
+    targetAngle = atan2(targetVector.y, targetVector.x);
+    xRange = new PVector(min(abs(position.y/tan(targetAngle)), position.x), min(abs((height-position.y)/tan(targetAngle)), width-position.x));
+    yRange = new PVector(min(abs(position.x*tan(targetAngle)), position.y), min(abs((width-position.x)*tan(targetAngle)), height-position.y));
+    if (targetAngle<PI/2&&targetAngle>=-PI/2) {
+      targetPupilVector = new PVector(map(targetVector.x, xRange.x, xRange.y, -size/2, size/2), map(targetVector.y, yRange.x, yRange.y, -size/2, size/2));
+    }
+    
     pupilVector = pupilVector.add(targetPupilVector.sub(pupilVector).mult(smoothness));
     pupilAngle = atan2(pupilVector.y, pupilVector.x);
     distRatio = map(targetVector.mag(), 0, width, 0, 1);
